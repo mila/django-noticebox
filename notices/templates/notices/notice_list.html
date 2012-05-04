@@ -1,0 +1,28 @@
+<table>
+{% for notice in notice_list %}
+	<tr>
+		<td>{% if not notice.is_read %}*{% endif %}</td>
+		<td>{{ notice.ctime|date }}</td>
+		<td><a href="{{ notice.get_absolute_url }}">{{ notice.subject }}</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+
+<div>
+	{% if page_obj.has_previous %}
+		<a href="?page=1">&laquo;&nbsp;first</a>
+		<a href="?page={{ page_obj.previous_page_number }}">&lsaquo;&nbsp;previous</a>
+	{% endif %}
+	{% for n in paginator.page_range %}
+		{% if page_obj.number == n %}
+			{{ n }}
+		{% else %}
+			<a href="?page={{ n }}">{{ n }}</a>
+		{% endif %}
+	{% endfor %}
+	{% if page_obj.has_next %}
+		<a href="?page={{ page_obj.next_page_number }}">next&nbsp;&rsaquo;</a>
+		<a href="?page={{ paginator.num_pages }}">last&nbsp;&raquo;</a>
+	{% endif %}
+</div>
