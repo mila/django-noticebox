@@ -9,12 +9,12 @@ from notices.models import Notice
 
 class BaseHandler(object):
 
-
     default_preset = 'default'
     default_subject_template = None
     default_body_template = None
 
-    def __init__(self, preset=None, subject_template=None, body_template=None, **kwargs):
+    def __init__(self, preset=None, subject_template=None, body_template=None,
+                 **kwargs):
         self.preset = preset or self.default_preset
         self.subject_template = subject_template or self.default_subject_template
         self.body_template = body_template or self.default_body_template
@@ -120,3 +120,16 @@ class EmailHandler(BaseHandler):
         connection = get_connection(self.backend, fail_silently=fail_silently,
                                     **backend_options)
         connection.send_messages(messages)
+
+
+class CompositeHandler(object):
+
+    def __init__(self):
+        self.handlers = []
+
+    def __call__(self, *args, **kwargs):
+        for handler in self.handlers:
+            handler(*args, **kwargs)
+
+    def register(self, *handlers):
+        self.handlers.extend(handlers)

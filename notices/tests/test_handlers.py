@@ -6,11 +6,12 @@ from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend as LocMemEmailBackend
 from django.test import TestCase
 
-from notices.handlers import EmailHandler, DatabaseHandler
+from notices.handlers import EmailHandler, DatabaseHandler, CompositeHandler
 from notices.models import Notice
 
 
-__all__ = ('DatabaseHandlerTestCase', 'EmailHandlerTestCase')
+__all__ = ('DatabaseHandlerTestCase', 'EmailHandlerTestCase',
+           'CompositeHandlerTestCase')
 
 
 TEMPLATE_DIRS = [os.path.abspath('%s/../templates/' % __file__)]
@@ -28,21 +29,24 @@ class BrokenEmailBackend(LocMemEmailBackend):
             raise IOError("This email backend is broken")
 
 
-class DatabaseHandlerTestCase(TestCase):
-    """
-    Tests the DatabaseHandler class.
-    """
+class AbstractHandlerTestCase(TestCase):
 
     def __call__(self, *args, **kwargs):
         with self.settings(TEMPLATE_DIRS=TEMPLATE_DIRS):
-            super(DatabaseHandlerTestCase, self).__call__(*args, **kwargs)
-
-    def create_handler(self, **kwargs):
-        return DatabaseHandler(**kwargs)
+            super(AbstractHandlerTestCase, self).__call__(*args, **kwargs)
 
     def create_user(self, username='alice'):
         email = '%s@example.com' % username
         return User.objects.create_user(username, email)
+
+
+class DatabaseHandlerTestCase(AbstractHandlerTestCase):
+    """
+    Tests the DatabaseHandler class.
+    """
+
+    def create_handler(self, **kwargs):
+        return DatabaseHandler(**kwargs)
 
     def test_notice_to_empty_list(self):
         handler = self.create_handler()
@@ -103,14 +107,10 @@ class DatabaseHandlerTestCase(TestCase):
         self.assertEqual('<p>Hello alice, how are you?</p>',  notice.body)
 
 
-class EmailHandlerTestCase(TestCase):
+class EmailHandlerTestCase(AbstractHandlerTestCase):
     """
     Tests  the EmailHandler class.
     """
-
-    def __call__(self, *args, **kwargs):
-        with self.settings(TEMPLATE_DIRS=TEMPLATE_DIRS):
-            super(EmailHandlerTestCase, self).__call__(*args, **kwargs)
 
     @property
     def outbox(self):
@@ -118,10 +118,6 @@ class EmailHandlerTestCase(TestCase):
 
     def create_handler(self, **kwargs):
         return EmailHandler(**kwargs)
-
-    def create_user(self, username='alice'):
-        email = '%s@example.com' % username
-        return User.objects.create_user(username, email)
 
     def test_send_to_empty_list(self):
         handler = self.create_handler()
@@ -209,3 +205,31 @@ class EmailHandlerTestCase(TestCase):
         handler = self.create_handler()
         handler([self.create_user()], preset='hello')
         self.assertEqual('Hello alice, how are you?',  self.outbox[0].body)
+
+
+class CompositeHandlerTestCase(AbstractHandlerTestCase):
+    """
+    Tests the CompositeHandler class.
+    """
+
+    @property
+    def outbox(self):
+        return getattr(mail, 'outbox', [])
+
+    def create_handler(self, **kwargs):
+        handler =  CompositeHandler()
+        handler.register(DatabaseHandler())
+        handler.register(EmailHandler())
+        return handler
+
+    def test_handle_empty_list(self):
+        handler = self.create_handler()
+        handler([])
+        self.assertEqual(0, Notice.objects.count())
+        self.assertEqual(0, len(self.outbox))
+
+    def test_handle_user_list(self):
+        handler = self.create_handler()
+        handler([self.create_user('alice'), self.create_user('bob')])
+        self.assertEqual(2, Notice.objects.count())
+        self.assertEqual(2, len(self.outbox))
