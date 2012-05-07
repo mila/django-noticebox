@@ -104,7 +104,7 @@ class EmailHandler(BaseHandler):
             fail_silently = self.fail_silently
         messages = [
             self.create_message(user, preset, **kwargs)
-            for user in _user_list(users)
+            for user in _user_list(users) if user.email
         ]
         self.send_messages(messages, fail_silently=fail_silently)
 

@@ -26,6 +26,7 @@ class AbstractNoticeTestCase(TestCase):
         return getattr(mail, 'outbox', [])
 
 
-    def create_user(self, username='alice'):
-        email = '%s@example.com' % username
+    def create_user(self, username='alice', email=None):
+        if email is None:
+            email = '%s@example.com' % username
         return User.objects.create_user(username, email, username)

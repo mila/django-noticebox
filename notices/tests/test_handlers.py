@@ -183,6 +183,11 @@ class EmailHandlerTestCase(AbstractNoticeTestCase):
         handler([self.create_user()], preset='hello')
         self.assertEqual('Hello alice, how are you?',  self.mail_outbox[0].body)
 
+    def test_user_without_email_is_skipped(self):
+        handler = self.create_handler()
+        handler([self.create_user(email='')], subject='Test subject', body='Test body')
+        self.assertEqual(0,  len(self.mail_outbox))
+
 
 class CompositeHandlerTestCase(AbstractNoticeTestCase):
     """
