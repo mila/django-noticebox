@@ -1,0 +1,6 @@
+{% autoescape off %}You have received the following notice from {{ site.name }}:
+
+{% block body %}{{ body }}{% endblock %}
+
+To see other notices please go to http://{{ site.domain }}{% url notice_list %}.
+{% endautoescape %}
