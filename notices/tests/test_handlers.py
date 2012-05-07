@@ -1,6 +1,7 @@
 
+import os
+
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend as LocMemEmailBackend
 from django.test import TestCase
@@ -9,7 +10,16 @@ from notices.handlers import EmailHandler, DatabaseHandler
 from notices.models import Notice
 
 
+__all__ = ('DatabaseHandlerTestCase', 'EmailHandlerTestCase')
+
+
+TEMPLATE_DIRS = [os.path.abspath('%s/../templates/' % __file__)]
+
+
 class BrokenEmailBackend(LocMemEmailBackend):
+    """
+    Fake email backend used for testing fail_silently option.
+    """
 
     def send_messages(self, messages):
         if self.fail_silently:
@@ -19,6 +29,13 @@ class BrokenEmailBackend(LocMemEmailBackend):
 
 
 class DatabaseHandlerTestCase(TestCase):
+    """
+    Tests the DatabaseHandler class.
+    """
+
+    def __call__(self, *args, **kwargs):
+        with self.settings(TEMPLATE_DIRS=TEMPLATE_DIRS):
+            super(DatabaseHandlerTestCase, self).__call__(*args, **kwargs)
 
     def create_handler(self, **kwargs):
         return DatabaseHandler(**kwargs)
@@ -48,58 +65,52 @@ class DatabaseHandlerTestCase(TestCase):
         self.assertEqual('<p>Test body</p>', Notice.objects.get().body)
 
     def test_custom_subject_template(self):
-        subject_template = 'notices/test/email_subject.txt'
+        subject_template = 'notices/hello/web_subject.html'
         handler = self.create_handler(subject_template=subject_template)
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
+        handler([self.create_user()])
         notice = Notice.objects.get()
-        self.assertTrue('Test subject' in notice.subject)
-        self.assertTrue('example.com' in notice.subject)
+        self.assertEqual('Hello alice!',  notice.subject)
 
     def test_custom_body_template(self):
-        body_template='notices/test/email_body.txt'
+        body_template='notices/hello/web_body.html'
         handler = self.create_handler(body_template=body_template)
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
+        handler([self.create_user()])
         notice = Notice.objects.get()
-        self.assertTrue('Test body' in notice.body)
-        self.assertTrue('http://example.com/' in notice.body)
+        self.assertEqual('<p>Hello alice, how are you?</p>',  notice.body)
 
     def test_preset_subject_template_all(self):
-        handler = self.create_handler(preset='test')
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
+        handler = self.create_handler(preset='hello')
+        handler([self.create_user()])
         notice = Notice.objects.get()
-        self.assertTrue('Test subject' in notice.subject)
-        self.assertTrue('example.com' in notice.subject)
+        self.assertEqual('Hello alice!',  notice.subject)
 
     def test_preset_body_template_all(self):
-        handler = self.create_handler(preset='test')
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
+        handler = self.create_handler(preset='hello')
+        handler([self.create_user()])
         notice = Notice.objects.get()
-        self.assertTrue('Test body' in notice.body)
-        self.assertTrue('http://example.com/' in notice.body)
+        self.assertEqual('<p>Hello alice, how are you?</p>',  notice.body)
 
     def test_preset_subject_template_single(self):
         handler = self.create_handler()
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                preset='test', site=Site.objects.get_current())
+        handler([self.create_user()], preset='hello')
         notice = Notice.objects.get()
-        self.assertTrue('Test subject' in notice.subject)
-        self.assertTrue('example.com' in notice.subject)
+        self.assertEqual('Hello alice!',  notice.subject)
 
     def test_preset_body_template_single(self):
         handler = self.create_handler()
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                preset='test', site=Site.objects.get_current())
+        handler([self.create_user()], preset='hello')
         notice = Notice.objects.get()
-        self.assertTrue('Test body' in notice.body)
-        self.assertTrue('http://example.com/' in notice.body)
-
+        self.assertEqual('<p>Hello alice, how are you?</p>',  notice.body)
 
 
 class EmailHandlerTestCase(TestCase):
+    """
+    Tests  the EmailHandler class.
+    """
+
+    def __call__(self, *args, **kwargs):
+        with self.settings(TEMPLATE_DIRS=TEMPLATE_DIRS):
+            super(EmailHandlerTestCase, self).__call__(*args, **kwargs)
 
     @property
     def outbox(self):
@@ -143,20 +154,20 @@ class EmailHandlerTestCase(TestCase):
         self.assertEqual(['alice@example.com'], self.outbox[0].to)
 
     def test_fail_silently_none(self):
-        backend = 'notices.tests.BrokenEmailBackend'
+        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend)
         with self.assertRaises(IOError):
             handler([self.create_user()], subject='Test subject', body='Test body')
         self.assertEqual(0, len(self.outbox))
 
     def test_fail_silently_all(self):
-        backend = 'notices.tests.BrokenEmailBackend'
+        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend, fail_silently=True)
         handler([self.create_user()], subject='Test subject', body='Test body')
         self.assertEqual(0, len(self.outbox))
 
     def test_fail_silently_single(self):
-        backend = 'notices.tests.BrokenEmailBackend'
+        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend)
         handler([self.create_user()], subject='Test subject', body='Test body',
                 fail_silently=True)
@@ -168,45 +179,33 @@ class EmailHandlerTestCase(TestCase):
         self.assertEqual('test@example.com', self.outbox[0].from_email)
 
     def test_custom_subject_template(self):
-        subject_template = 'notices/test/email_subject.txt'
+        subject_template = 'notices/hello/email_subject.txt'
         handler = self.create_handler(subject_template=subject_template)
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
-        self.assertTrue('Test subject' in self.outbox[0].subject)
-        self.assertTrue('example.com' in self.outbox[0].subject)
+        handler([self.create_user()])
+        self.assertEqual('Hello alice!',  self.outbox[0].subject)
 
     def test_custom_body_template(self):
-        body_template='notices/test/email_body.txt'
+        body_template='notices/hello/email_body.txt'
         handler = self.create_handler(body_template=body_template)
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
-        self.assertTrue('Test body' in self.outbox[0].body)
-        self.assertTrue('http://example.com/' in self.outbox[0].body)
+        handler([self.create_user()])
+        self.assertEqual('Hello alice, how are you?',  self.outbox[0].body)
 
     def test_preset_subject_template_all(self):
-        handler = self.create_handler(preset='test')
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
-        self.assertTrue('Test subject' in self.outbox[0].subject)
-        self.assertTrue('example.com' in self.outbox[0].subject)
+        handler = self.create_handler(preset='hello')
+        handler([self.create_user()])
+        self.assertEqual('Hello alice!',  self.outbox[0].subject)
 
     def test_preset_body_template_all(self):
-        handler = self.create_handler(preset='test')
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                site=Site.objects.get_current())
-        self.assertTrue('Test body' in self.outbox[0].body)
-        self.assertTrue('http://example.com/' in self.outbox[0].body)
+        handler = self.create_handler(preset='hello')
+        handler([self.create_user()])
+        self.assertEqual('Hello alice, how are you?',  self.outbox[0].body)
 
     def test_preset_subject_template_single(self):
         handler = self.create_handler()
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                preset='test', site=Site.objects.get_current())
-        self.assertTrue('Test subject' in self.outbox[0].subject)
-        self.assertTrue('example.com' in self.outbox[0].subject)
+        handler([self.create_user()], preset='hello')
+        self.assertEqual('Hello alice!',  self.outbox[0].subject)
 
     def test_preset_body_template_single(self):
         handler = self.create_handler()
-        handler([self.create_user()], subject='Test subject', body='Test body',
-                preset='test', site=Site.objects.get_current())
-        self.assertTrue('Test body' in self.outbox[0].body)
-        self.assertTrue('http://example.com/' in self.outbox[0].body)
+        handler([self.create_user()], preset='hello')
+        self.assertEqual('Hello alice, how are you?',  self.outbox[0].body)

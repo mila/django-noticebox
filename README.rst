@@ -2,4 +2,4 @@
 
 Running tests: ::
 
-	django-admin.py test notices --settings=notices.test_settings
+	django-admin.py test notices --settings=notices.tests.settings

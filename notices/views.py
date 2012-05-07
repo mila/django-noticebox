@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView
 
 from notices.models import Notice
 
+
 class NoticeListView(ListView):
     """
     A view which displays a list of user's notices.

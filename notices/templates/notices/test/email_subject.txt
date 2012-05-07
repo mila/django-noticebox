@@ -1,1 +1,0 @@
-{% autoescape off %}[{{ site.name }}] {{ subject }}{% endautoescape %}

@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from notices.models import Notice
 
 
-class TemplateHandler(object):
+class BaseHandler(object):
 
 
     default_preset = 'default'
@@ -18,7 +18,7 @@ class TemplateHandler(object):
         self.preset = preset or self.default_preset
         self.subject_template = subject_template or self.default_subject_template
         self.body_template = body_template or self.default_body_template
-        super(TemplateHandler, self).__init__(**kwargs)
+        super(BaseHandler, self).__init__(**kwargs)
 
     def get_context(self, user, **kwargs):
         """
@@ -39,7 +39,7 @@ class TemplateHandler(object):
         return get_template(self.body_template % {'preset': preset})
 
 
-class DatabaseHandler(TemplateHandler):
+class DatabaseHandler(BaseHandler):
 
     default_subject_template = 'notices/%(preset)s/web_subject.html'
     default_body_template = 'notices/%(preset)s/web_body.html'
@@ -75,7 +75,7 @@ class DatabaseHandler(TemplateHandler):
         Notice.objects.bulk_create(notices)
 
 
-class EmailHandler(TemplateHandler):
+class EmailHandler(BaseHandler):
 
     default_subject_template = 'notices/%(preset)s/email_subject.txt'
     default_body_template = 'notices/%(preset)s/email_body.txt'
