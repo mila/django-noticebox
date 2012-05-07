@@ -26,3 +26,8 @@ DATABASES = {
 ROOT_URLCONF = 'notices.urls'
 
 DEFAULT_FROM_EMAIL = 'admin@example.com'
+
+# Do not slow down test execution.
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+)
