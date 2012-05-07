@@ -23,6 +23,11 @@ class DatabaseHandlerTestCase(AbstractNoticeTestCase):
         handler([])
         self.assertEqual(0, Notice.objects.count())
 
+    def test_notice_to_single_user(self):
+        handler = self.create_handler()
+        handler(self.create_user())
+        self.assertEqual(1, Notice.objects.count())
+
     def test_notice_to_user_list(self):
         handler = self.create_handler()
         handler([self.create_user('alice'), self.create_user('bob')])
@@ -90,6 +95,11 @@ class EmailHandlerTestCase(AbstractNoticeTestCase):
         handler = self.create_handler()
         handler([])
         self.assertEqual(0, len(self.mail_outbox))
+
+    def test_send_to_single_user(self):
+        handler = self.create_handler()
+        handler(self.create_user())
+        self.assertEqual(1, len(self.mail_outbox))
 
     def test_send_to_user_list(self):
         handler = self.create_handler()
@@ -190,6 +200,12 @@ class CompositeHandlerTestCase(AbstractNoticeTestCase):
         handler([])
         self.assertEqual(0, Notice.objects.count())
         self.assertEqual(0, len(self.mail_outbox))
+
+    def test_handle_single_user(self):
+        handler = self.create_handler()
+        handler(self.create_user())
+        self.assertEqual(1, Notice.objects.count())
+        self.assertEqual(1, len(self.mail_outbox))
 
     def test_handle_user_list(self):
         handler = self.create_handler()

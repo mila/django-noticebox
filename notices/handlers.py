@@ -7,6 +7,12 @@ from django.template.loader import get_template
 from notices.models import Notice
 
 
+def _user_list(user_or_user_list):
+    if hasattr(user_or_user_list, 'email'):
+        return [user_or_user_list]
+    return user_or_user_list
+
+
 class BaseHandler(object):
 
     default_preset = 'default'
@@ -55,7 +61,7 @@ class DatabaseHandler(BaseHandler):
             preset = self.preset
         messages = [
             self.create_notice(user, preset, **kwargs)
-            for user in users
+            for user in _user_list(users)
         ]
         self.save_notices(messages)
 
@@ -98,7 +104,7 @@ class EmailHandler(BaseHandler):
             fail_silently = self.fail_silently
         messages = [
             self.create_message(user, preset, **kwargs)
-            for user in users
+            for user in _user_list(users)
         ]
         self.send_messages(messages, fail_silently=fail_silently)
 
