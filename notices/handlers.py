@@ -133,3 +133,10 @@ class CompositeHandler(object):
 
     def register(self, *handlers):
         self.handlers.extend(handlers)
+
+
+save_notice = DatabaseHandler()
+mail_notice = EmailHandler()
+
+user_notice = CompositeHandler()
+user_notice.register(save_notice, mail_notice)

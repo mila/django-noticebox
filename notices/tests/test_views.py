@@ -1,14 +1,14 @@
 
 from django.contrib.auth.models import User
-from django.test import TestCase
 
 from notices.models import Notice
+from notices.tests.base import AbstractNoticeTestCase
 
 
 __all__ = ('NoticeListViewTestCase', 'NoticeDetailViewTestCase')
 
 
-class NoticeListViewTestCase(TestCase):
+class NoticeListViewTestCase(AbstractNoticeTestCase):
     """
     Tests the NoticeListView class.
     """
@@ -16,7 +16,7 @@ class NoticeListViewTestCase(TestCase):
     urls = 'notices.tests.urls'
 
     def setUp(self):
-        self.user = User.objects.create_user('alice', 'alice.example.com', 'alice')
+        self.user = self.create_user('alice')
         self.notice = Notice.objects.create(
             user=self.user, subject='Hello alice!',
             body='Hello alice, how are you?',
@@ -42,7 +42,7 @@ class NoticeListViewTestCase(TestCase):
         self.assertContains(r, 'Hello alice!')
 
 
-class NoticeDetailViewTestCase(TestCase):
+class NoticeDetailViewTestCase(AbstractNoticeTestCase):
     """
     Tests the NoticeDetailView class.
     """
@@ -50,7 +50,7 @@ class NoticeDetailViewTestCase(TestCase):
     urls = 'notices.tests.urls'
 
     def setUp(self):
-        self.user = User.objects.create_user('alice', 'alice.example.com', 'alice')
+        self.user = self.create_user('alice')
         self.notice = Notice.objects.create(
             user=self.user, subject='Hello alice!',
             body='Hello alice, how are you?',
