@@ -1,6 +1,4 @@
 
-from django.contrib.auth.models import User
-
 from notices.models import Notice
 from notices.tests.base import AbstractNoticeTestCase
 
