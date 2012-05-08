@@ -3,7 +3,7 @@
 	<tr>
 		<td>{% if not notice.is_read %}*{% endif %}</td>
 		<td>{{ notice.ctime|date }}</td>
-		<td><a href="{{ notice.get_absolute_url }}">{{ notice.subject }}</a></td>
+		<td><a href="{{ notice.get_absolute_url }}">{{ notice.subject|safe }}</a></td>
 	</tr>
 {% endfor %}
 </table>

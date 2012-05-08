@@ -81,6 +81,16 @@ class DatabaseHandlerTestCase(AbstractNoticeTestCase):
         notice = Notice.objects.get()
         self.assertEqual('<p>Hello alice, how are you?</p>',  notice.body)
 
+    def test_subject_is_escaped(self):
+        handler = self.create_handler()
+        handler([self.create_user()], subject='<script>', body='')
+        self.assertEqual('&lt;script&gt;', Notice.objects.get().subject)
+
+    def test_body_is_escaped(self):
+        handler = self.create_handler()
+        handler([self.create_user()], subject='', body='<script>')
+        self.assertEqual('<p>&lt;script&gt;</p>', Notice.objects.get().body)
+
 
 class EmailHandlerTestCase(AbstractNoticeTestCase):
     """
