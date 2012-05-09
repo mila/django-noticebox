@@ -105,6 +105,21 @@ directory with the `username` variable in the context: ::
     user_notice(user, preset="welcome", username="alice")
 
 
+Context processor
+-----------------
+
+The application provides a context processor which makes count of unread
+messages available in the template: ::
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        # ...
+        'notices.context_processors.notices',
+        # ...
+    )
+
+Then the unread notice count is avaiblable in the `notice_unread_count`
+variable.
+
 Testing
 =======
 
