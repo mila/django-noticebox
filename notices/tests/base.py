@@ -18,13 +18,13 @@ class AbstractNoticeTestCase(TestCase):
     def __call__(self, *args, **kwargs):
         with self.settings(
                 TEMPLATE_DIRS=TEMPLATE_DIRS,
-                TEMPLATE_CONTEXT_PROCESSORS=TEMPLATE_CONTEXT_PROCESSORS):
+                TEMPLATE_CONTEXT_PROCESSORS=TEMPLATE_CONTEXT_PROCESSORS,
+                DEFAULT_FROM_EMAIL='admin@example.com'):
             super(AbstractNoticeTestCase, self).__call__(*args, **kwargs)
 
     @property
     def mail_outbox(self):
         return getattr(mail, 'outbox', [])
-
 
     def create_user(self, username='alice', email=None):
         if email is None:
