@@ -1,3 +1,9 @@
+
+{% extends "noticebox/base.html" %}
+
+
+{% block content %}
+
 <table>
 {% for notice in notice_list %}
 	<tr>
@@ -26,3 +32,5 @@
 		<a href="?page={{ paginator.num_pages }}">last&nbsp;&raquo;</a>
 	{% endif %}
 </div>
+
+{% endblock content %}
