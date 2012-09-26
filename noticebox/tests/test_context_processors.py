@@ -4,14 +4,16 @@ from django.template.context import RequestContext
 from django.test.client import RequestFactory
 
 from noticebox.models import Notice
-from noticebox.tests.base import AbstractNoticeTestCase
-
+from noticebox.tests.base import BaseNoticeTestCase
 
 
 __all__ = ('NoticesContextPreprocessorTestCase',)
 
 
-class NoticesContextPreprocessorTestCase(AbstractNoticeTestCase):
+class NoticesContextPreprocessorTestCase(BaseNoticeTestCase):
+    """
+    Tests the `notices` context preprocessor.
+    """
 
     def setUp(self):
         self.user = self.create_user()
@@ -52,4 +54,3 @@ class NoticesContextPreprocessorTestCase(AbstractNoticeTestCase):
             value = context['notice_unread_count']
             self.assertEqual(1, value())
             self.assertEqual(1, value())
-

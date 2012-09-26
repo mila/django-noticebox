@@ -1,18 +1,18 @@
 
 from django.core.mail.backends.locmem import EmailBackend as LocMemEmailBackend
 
-from noticebox.handlers import EmailHandler, DatabaseHandler, CompositeHandler
+from noticebox.handlers import EmailHandler, DatabaseHandler, user_notice
 from noticebox.models import Notice
-from noticebox.tests.base import AbstractNoticeTestCase
+from noticebox.tests.base import BaseNoticeTestCase
 
 
 __all__ = ('DatabaseHandlerTestCase', 'EmailHandlerTestCase',
-           'CompositeHandlerTestCase')
+           'UserNoticeShortcutTestCase')
 
 
-class DatabaseHandlerTestCase(AbstractNoticeTestCase):
+class DatabaseHandlerTestCase(BaseNoticeTestCase):
     """
-    Tests the DatabaseHandler class.
+    Tests the `DatabaseHandler` class.
     """
 
     def create_handler(self, **kwargs):
@@ -92,11 +92,10 @@ class DatabaseHandlerTestCase(AbstractNoticeTestCase):
         self.assertEqual('<p>&lt;script&gt;</p>', Notice.objects.get().body)
 
 
-class EmailHandlerTestCase(AbstractNoticeTestCase):
+class EmailHandlerTestCase(BaseNoticeTestCase):
     """
-    Tests  the EmailHandler class.
+    Tests the `EmailHandler` class.
     """
-
 
     def create_handler(self, **kwargs):
         return EmailHandler(**kwargs)
@@ -199,32 +198,23 @@ class EmailHandlerTestCase(AbstractNoticeTestCase):
         self.assertEqual(0,  len(self.mail_outbox))
 
 
-class CompositeHandlerTestCase(AbstractNoticeTestCase):
+class UserNoticeShortcutTestCase(BaseNoticeTestCase):
     """
-    Tests the CompositeHandler class.
+    Tests the `user_notice` shortcut.
     """
-
-    def create_handler(self, **kwargs):
-        handler =  CompositeHandler()
-        handler.register(DatabaseHandler())
-        handler.register(EmailHandler())
-        return handler
 
     def test_handle_empty_list(self):
-        handler = self.create_handler()
-        handler([])
+        user_notice([])
         self.assertEqual(0, Notice.objects.count())
         self.assertEqual(0, len(self.mail_outbox))
 
     def test_handle_single_user(self):
-        handler = self.create_handler()
-        handler(self.create_user())
+        user_notice(self.create_user())
         self.assertEqual(1, Notice.objects.count())
         self.assertEqual(1, len(self.mail_outbox))
 
     def test_handle_user_list(self):
-        handler = self.create_handler()
-        handler([self.create_user('alice'), self.create_user('bob')])
+        user_notice([self.create_user('alice'), self.create_user('bob')])
         self.assertEqual(2, Notice.objects.count())
         self.assertEqual(2, len(self.mail_outbox))
 

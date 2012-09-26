@@ -33,4 +33,3 @@ class Notice(models.Model):
         self.atime = datetime.now() if value else None
     is_read = property(_get_is_read, _set_is_read)
     del _get_is_read, _set_is_read
-

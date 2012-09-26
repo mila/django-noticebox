@@ -1,3 +1,16 @@
+"""
+Handlers define how are notices created and delivered to the users.
+
+Two handlers are implemented. DatabaseHandler saves notices in the database
+and EmailHandler sends notices using email messages. Both of them are
+implemented as callable classes so that they can be easily customized.
+
+If the default functionality is sufficient then `save_notice`
+and `mail_notice` global instances can be used (and class bases
+implementation can be ignored). The `user_notice` function is a shortcut
+for calling both `save_notice` and `mail_notice`.
+"""
+
 
 from django.core.mail import EmailMessage
 from django.core.mail import get_connection
@@ -14,6 +27,9 @@ def _user_list(user_or_user_list):
 
 
 class BaseHandler(object):
+    """
+    Provides common functionality to both DatabaseHandler and EmailHandler.
+    """
 
     default_preset = 'default'
     default_subject_template = None
@@ -25,6 +41,17 @@ class BaseHandler(object):
         self.subject_template = subject_template or self.default_subject_template
         self.body_template = body_template or self.default_body_template
         super(BaseHandler, self).__init__(**kwargs)
+
+    def render(self, user, preset=None, **kwargs):
+        """
+        Renders and returns notice subject and body.
+        """
+        if preset is None:
+            preset = self.preset
+        context = self.get_context(user, **kwargs)
+        subject = self.get_subject_template(user, preset).render(context)
+        body = self.get_body_template(user, preset).render(context)
+        return subject, body
 
     def get_context(self, user, **kwargs):
         """
@@ -46,6 +73,9 @@ class BaseHandler(object):
 
 
 class DatabaseHandler(BaseHandler):
+    """
+    Saves notices in the database so that they can be later displayed on web.
+    """
 
     default_subject_template = 'noticebox/%(preset)s/web_subject.html'
     default_body_template = 'noticebox/%(preset)s/web_body.html'
@@ -55,23 +85,17 @@ class DatabaseHandler(BaseHandler):
 
     def __call__(self, users, preset=None, **kwargs):
         """
-        Creates notices and sends them in database.
+        Creates notices and saves them in database.
         """
-        if preset is None:
-            preset = self.preset
-        messages = [
-            self.create_notice(user, preset, **kwargs)
-            for user in _user_list(users)
-        ]
-        self.save_notices(messages)
+        notices = [self.create_notice(user, preset, **kwargs)
+                   for user in _user_list(users)]
+        self.save_notices(notices)
 
     def create_notice(self, user, preset, **kwargs):
         """
         Creates and returns Notice instances for the given user.
         """
-        context = self.get_context(user, **kwargs)
-        subject = self.get_subject_template(user, preset).render(context)
-        body = self.get_body_template(user, preset).render(context)
+        subject, body = self.render(user, preset, **kwargs)
         return Notice(user=user, subject=subject, body=body)
 
     def save_notices(self, notices):
@@ -82,6 +106,9 @@ class DatabaseHandler(BaseHandler):
 
 
 class EmailHandler(BaseHandler):
+    """
+    Sends notices using email.
+    """
 
     default_subject_template = 'noticebox/%(preset)s/email_subject.txt'
     default_body_template = 'noticebox/%(preset)s/email_body.txt'
@@ -98,23 +125,17 @@ class EmailHandler(BaseHandler):
         """
         Creates email messages with notice and sends them via email.
         """
-        if preset is None:
-            preset = self.preset
         if fail_silently is None:
             fail_silently = self.fail_silently
-        messages = [
-            self.create_message(user, preset, **kwargs)
-            for user in _user_list(users) if user.email
-        ]
+        messages = [self.create_message(user, preset, **kwargs)
+                    for user in _user_list(users) if user.email]
         self.send_messages(messages, fail_silently=fail_silently)
 
     def create_message(self, user, preset, **kwargs):
         """
         Creates and returns an email message for the given user.
         """
-        context = self.get_context(user, **kwargs)
-        subject = self.get_subject_template(user, preset).render(context)
-        body = self.get_body_template(user, preset).render(context)
+        subject, body = self.render(user, preset, **kwargs)
         return EmailMessage(from_email=self.from_email, to=(user.email,),
                             subject=subject, body=body)
 
@@ -128,21 +149,12 @@ class EmailHandler(BaseHandler):
         connection.send_messages(messages)
 
 
-class CompositeHandler(object):
-
-    def __init__(self):
-        self.handlers = []
-
-    def __call__(self, *args, **kwargs):
-        for handler in self.handlers:
-            handler(*args, **kwargs)
-
-    def register(self, *handlers):
-        self.handlers.extend(handlers)
-
-
 save_notice = DatabaseHandler()
 mail_notice = EmailHandler()
 
-user_notice = CompositeHandler()
-user_notice.register(save_notice, mail_notice)
+def user_notice(users, preset=None, fail_silently=None, **kwargs):
+    """
+    Saves notices in database and also sends them via email.
+    """
+    save_notice(users, preset, **kwargs)
+    mail_notice(users, preset, fail_silently=fail_silently, **kwargs)

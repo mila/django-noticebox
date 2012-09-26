@@ -10,7 +10,7 @@ TEMPLATE_DIRS = [os.path.abspath('%s/../templates/' % __file__)]
 TEMPLATE_CONTEXT_PROCESSORS = ['noticebox.context_processors.notices']
 
 
-class AbstractNoticeTestCase(TestCase):
+class BaseNoticeTestCase(TestCase):
     """
     Base class for tests defined in this application.
     """
@@ -20,7 +20,7 @@ class AbstractNoticeTestCase(TestCase):
                 TEMPLATE_DIRS=TEMPLATE_DIRS,
                 TEMPLATE_CONTEXT_PROCESSORS=TEMPLATE_CONTEXT_PROCESSORS,
                 DEFAULT_FROM_EMAIL='admin@example.com'):
-            super(AbstractNoticeTestCase, self).__call__(*args, **kwargs)
+            super(BaseNoticeTestCase, self).__call__(*args, **kwargs)
 
     @property
     def mail_outbox(self):

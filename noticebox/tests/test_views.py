@@ -1,14 +1,14 @@
 
 from noticebox.models import Notice
-from noticebox.tests.base import AbstractNoticeTestCase
+from noticebox.tests.base import BaseNoticeTestCase
 
 
 __all__ = ('NoticeListViewTestCase', 'NoticeDetailViewTestCase')
 
 
-class NoticeListViewTestCase(AbstractNoticeTestCase):
+class NoticeListViewTestCase(BaseNoticeTestCase):
     """
-    Tests the NoticeListView class.
+    Tests the `NoticeListView` class.
     """
 
     urls = 'noticebox.tests.urls'
@@ -40,9 +40,9 @@ class NoticeListViewTestCase(AbstractNoticeTestCase):
         self.assertContains(r, 'Hello <i>alice</i>!')
 
 
-class NoticeDetailViewTestCase(AbstractNoticeTestCase):
+class NoticeDetailViewTestCase(BaseNoticeTestCase):
     """
-    Tests the NoticeDetailView class.
+    Tests the `NoticeDetailView` class.
     """
 
     urls = 'noticebox.tests.urls'

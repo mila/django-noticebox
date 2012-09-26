@@ -3,7 +3,8 @@ Django settings for testing this application.
 
 The tests can be executed by running a command similar to: ::
 
-    django-admin.py test noticebox --settings=noticebox.tests.settings
+    django-admin.py test noticebox \
+        --settings=noticebox.tests.settings --pythonpath=$PWD
 
 """
 

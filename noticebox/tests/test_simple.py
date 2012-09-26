@@ -1,12 +1,14 @@
+
 import re
+
 from noticebox.handlers import user_notice
-from noticebox.tests.base import AbstractNoticeTestCase
+from noticebox.tests.base import BaseNoticeTestCase
 
 
 __all__ = ('NoticesTestCase',)
 
 
-class NoticesTestCase(AbstractNoticeTestCase):
+class NoticesTestCase(BaseNoticeTestCase):
     """
     A simple test that things work all together.
     """
