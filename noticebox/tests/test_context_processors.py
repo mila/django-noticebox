@@ -3,8 +3,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.template.context import RequestContext
 from django.test.client import RequestFactory
 
-from notices.models import Notice
-from notices.tests.base import AbstractNoticeTestCase
+from noticebox.models import Notice
+from noticebox.tests.base import AbstractNoticeTestCase
 
 
 

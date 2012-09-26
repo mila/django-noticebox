@@ -7,7 +7,7 @@ from django.test import TestCase
 
 
 TEMPLATE_DIRS = [os.path.abspath('%s/../templates/' % __file__)]
-TEMPLATE_CONTEXT_PROCESSORS = ['notices.context_processors.notices']
+TEMPLATE_CONTEXT_PROCESSORS = ['noticebox.context_processors.notices']
 
 
 class AbstractNoticeTestCase(TestCase):

@@ -1,5 +1,5 @@
 
-from notices.models import Notice
+from noticebox.models import Notice
 
 class LazyCount(object):
 

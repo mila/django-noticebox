@@ -1,6 +1,6 @@
 
-from notices.models import Notice
-from notices.tests.base import AbstractNoticeTestCase
+from noticebox.models import Notice
+from noticebox.tests.base import AbstractNoticeTestCase
 
 
 __all__ = ('NoticeListViewTestCase', 'NoticeDetailViewTestCase')
@@ -11,7 +11,7 @@ class NoticeListViewTestCase(AbstractNoticeTestCase):
     Tests the NoticeListView class.
     """
 
-    urls = 'notices.tests.urls'
+    urls = 'noticebox.tests.urls'
 
     def setUp(self):
         self.user = self.create_user('alice')
@@ -45,7 +45,7 @@ class NoticeDetailViewTestCase(AbstractNoticeTestCase):
     Tests the NoticeDetailView class.
     """
 
-    urls = 'notices.tests.urls'
+    urls = 'noticebox.tests.urls'
 
     def setUp(self):
         self.user = self.create_user('alice')

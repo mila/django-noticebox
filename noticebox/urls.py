@@ -1,7 +1,7 @@
 
 from django.conf.urls import patterns, url
 
-from notices.views import NoticeListView, NoticeDetailView
+from noticebox.views import NoticeListView, NoticeDetailView
 
 
 urlpatterns = patterns('',

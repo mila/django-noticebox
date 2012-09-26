@@ -4,7 +4,7 @@ from django.core.mail import get_connection
 from django.template import Context
 from django.template.loader import get_template
 
-from notices.models import Notice
+from noticebox.models import Notice
 
 
 def _user_list(user_or_user_list):
@@ -47,8 +47,8 @@ class BaseHandler(object):
 
 class DatabaseHandler(BaseHandler):
 
-    default_subject_template = 'notices/%(preset)s/web_subject.html'
-    default_body_template = 'notices/%(preset)s/web_body.html'
+    default_subject_template = 'noticebox/%(preset)s/web_subject.html'
+    default_body_template = 'noticebox/%(preset)s/web_body.html'
 
     def __init__(self, **kwargs):
         super(DatabaseHandler, self).__init__(**kwargs)
@@ -83,8 +83,8 @@ class DatabaseHandler(BaseHandler):
 
 class EmailHandler(BaseHandler):
 
-    default_subject_template = 'notices/%(preset)s/email_subject.txt'
-    default_body_template = 'notices/%(preset)s/email_body.txt'
+    default_subject_template = 'noticebox/%(preset)s/email_subject.txt'
+    default_body_template = 'noticebox/%(preset)s/email_body.txt'
 
     def __init__(self, backend=None, backend_options=None,
                 fail_silently=False, from_email=None, **kwargs):

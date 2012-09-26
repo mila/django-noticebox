@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from notices.managers import NoticeManager
+from noticebox.managers import NoticeManager
 
 
 class Notice(models.Model):
@@ -19,7 +19,7 @@ class Notice(models.Model):
     objects = NoticeManager()
 
     class Meta:
-        db_table = 'notices_notice'
+        db_table = 'noticebox_notice'
 
     def __unicode__(self):
         return self.subject

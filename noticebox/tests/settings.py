@@ -3,7 +3,7 @@ Django settings for testing this application.
 
 The tests can be executed by running a command similar to: ::
 
-    django-admin.py test notices --settings=notices.tests.settings
+    django-admin.py test noticebox --settings=noticebox.tests.settings
 
 """
 
@@ -13,7 +13,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
 
-    'notices',
+    'noticebox',
 ]
 
 DATABASES = {
@@ -23,7 +23,7 @@ DATABASES = {
     },
 }
 
-ROOT_URLCONF = 'notices.urls'
+ROOT_URLCONF = 'noticebox.urls'
 
 DEFAULT_FROM_EMAIL = 'admin@example.com'
 

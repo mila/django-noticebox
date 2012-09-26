@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView
 
-from notices.models import Notice
+from noticebox.models import Notice
 
 
 class NoticeListView(ListView):

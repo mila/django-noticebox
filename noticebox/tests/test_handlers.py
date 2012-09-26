@@ -1,9 +1,9 @@
 
 from django.core.mail.backends.locmem import EmailBackend as LocMemEmailBackend
 
-from notices.handlers import EmailHandler, DatabaseHandler, CompositeHandler
-from notices.models import Notice
-from notices.tests.base import AbstractNoticeTestCase
+from noticebox.handlers import EmailHandler, DatabaseHandler, CompositeHandler
+from noticebox.models import Notice
+from noticebox.tests.base import AbstractNoticeTestCase
 
 
 __all__ = ('DatabaseHandlerTestCase', 'EmailHandlerTestCase',
@@ -44,14 +44,14 @@ class DatabaseHandlerTestCase(AbstractNoticeTestCase):
         self.assertEqual('<p>Test body</p>', Notice.objects.get().body)
 
     def test_custom_subject_template(self):
-        subject_template = 'notices/hello/web_subject.html'
+        subject_template = 'noticebox/hello/web_subject.html'
         handler = self.create_handler(subject_template=subject_template)
         handler([self.create_user()])
         notice = Notice.objects.get()
         self.assertEqual('Hello alice!',  notice.subject)
 
     def test_custom_body_template(self):
-        body_template='notices/hello/web_body.html'
+        body_template='noticebox/hello/web_body.html'
         handler = self.create_handler(body_template=body_template)
         handler([self.create_user()])
         notice = Notice.objects.get()
@@ -137,20 +137,20 @@ class EmailHandlerTestCase(AbstractNoticeTestCase):
         self.assertEqual(['alice@example.com'], self.mail_outbox[0].to)
 
     def test_fail_silently_none(self):
-        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
+        backend = 'noticebox.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend)
         with self.assertRaises(IOError):
             handler([self.create_user()], subject='Test subject', body='Test body')
         self.assertEqual(0, len(self.mail_outbox))
 
     def test_fail_silently_all(self):
-        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
+        backend = 'noticebox.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend, fail_silently=True)
         handler([self.create_user()], subject='Test subject', body='Test body')
         self.assertEqual(0, len(self.mail_outbox))
 
     def test_fail_silently_single(self):
-        backend = 'notices.tests.test_handlers.BrokenEmailBackend'
+        backend = 'noticebox.tests.test_handlers.BrokenEmailBackend'
         handler = self.create_handler(backend=backend)
         handler([self.create_user()], subject='Test subject', body='Test body',
                 fail_silently=True)
@@ -162,13 +162,13 @@ class EmailHandlerTestCase(AbstractNoticeTestCase):
         self.assertEqual('test@example.com', self.mail_outbox[0].from_email)
 
     def test_custom_subject_template(self):
-        subject_template = 'notices/hello/email_subject.txt'
+        subject_template = 'noticebox/hello/email_subject.txt'
         handler = self.create_handler(subject_template=subject_template)
         handler([self.create_user()])
         self.assertEqual('Hello alice!',  self.mail_outbox[0].subject)
 
     def test_custom_body_template(self):
-        body_template='notices/hello/email_body.txt'
+        body_template='noticebox/hello/email_body.txt'
         handler = self.create_handler(body_template=body_template)
         handler([self.create_user()])
         self.assertEqual('Hello alice, how are you?',  self.mail_outbox[0].body)

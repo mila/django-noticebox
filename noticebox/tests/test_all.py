@@ -1,6 +1,6 @@
 import re
-from notices.handlers import user_notice
-from notices.tests.base import AbstractNoticeTestCase
+from noticebox.handlers import user_notice
+from noticebox.tests.base import AbstractNoticeTestCase
 
 
 __all__ = ('NoticesTestCase',)
@@ -11,7 +11,7 @@ class NoticesTestCase(AbstractNoticeTestCase):
     A simple test that things work all together.
     """
 
-    urls = 'notices.tests.urls'
+    urls = 'noticebox.tests.urls'
 
     def setUp(self):
         self.user = self.create_user('alice')
