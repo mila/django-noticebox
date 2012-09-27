@@ -1,0 +1,3 @@
+include LICENSE
+recursive-include noticebox/templates/noticebox *
+recursive-include noticebox/tests/templates/noticebox *
