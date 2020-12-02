@@ -1,4 +1,6 @@
 
+**This project is archived. It is no longer updated or maintained.**
+
 Django-noticebox is a reusable Django application which provides functionality
 for sending notices to site users. The notices can be displayed when user
 signs in, sent by email or both.
